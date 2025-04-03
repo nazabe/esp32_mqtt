@@ -60,18 +60,12 @@ static inline bool is_mqtt_connected(void)
     else {
         return true;
     }
-    // if (!mqtt_connected)
-    // {
-    //     ESP_LOGW("MQTT", "No conectado al broker MQTT");
-    // }
-    // return mqtt_connected;
 }
 
-void log_error_if_nonzero(const char *message, int error_code)
+static void log_error_if_nonzero(const char *message, int error_code)
 {
-    if (error_code != 0)
-    {
-        ESP_LOGE("UTILS_MODULE", "Error %s: 0x%x", message, error_code);
+    if (error_code != 0) {
+        ESP_LOGE(TAG, "Last error %s: 0x%x", message, error_code);
     }
 }
 
@@ -103,51 +97,43 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
                  (event_id == MQTT_EVENT_PUBLISHED) ? "PUBLISHED" : "UNKNOWN",
                  event->msg_id);
         break;
-
     case MQTT_EVENT_DATA:
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
-        ESP_LOG_BUFFER_HEX_LEVEL(TAG, event->topic, event->topic_len, ESP_LOG_INFO);
-        ESP_LOG_BUFFER_HEX_LEVEL(TAG, event->data, event->data_len, ESP_LOG_INFO);  
-
-        ESP_LOGI(TAG, "MQTT Message recieved: %.*s", event->topic_len, event->data);
+        printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
+        printf("DATA=%.*s\r\n", event->data_len, event->data);
         break;
-
     case MQTT_EVENT_ERROR:
-        ESP_LOGE(TAG, "MQTT_EVENT_ERROR");
-        if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
-        {
-            log_error_if_nonzero("esp-tls error", event->error_handle->esp_tls_last_esp_err);
-            log_error_if_nonzero("TLS stack error", event->error_handle->esp_tls_stack_err);
-            log_error_if_nonzero("Socket errno", event->error_handle->esp_transport_sock_errno);
-            ESP_LOGE(TAG, "Socket errno string: %s", strerror(event->error_handle->esp_transport_sock_errno));
+        ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
+        if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) {
+            log_error_if_nonzero("reported from esp-tls", event->error_handle->esp_tls_last_esp_err);
+            log_error_if_nonzero("reported from tls stack", event->error_handle->esp_tls_stack_err);
+            log_error_if_nonzero("captured as transport's socket errno",  event->error_handle->esp_transport_sock_errno);
+            ESP_LOGI(TAG, "Last errno string (%s)", strerror(event->error_handle->esp_transport_sock_errno));
+
         }
         break;
-
-    case MQTT_EVENT_ANY:
-        ESP_LOGI(TAG, "MQTT_EVENT_PINGRESP"); // check this out later
-        break;
-
     default:
-        ESP_LOGW(TAG, "Unhandled event id: %d", event->event_id);
+        ESP_LOGI(TAG, "Other event id:%d", event->event_id);
         break;
     }
 }
 
-static void mqtt_init(void)
+static void mqtt_handler_init(void)
 {
     // Config MQTT client
-    esp_mqtt_client_config_t mqtt_config = {
-    };
+    //  esp_mqtt_client_config_t mqtt_cfg = {
+    //     .broker.address.uri = CONFIG_BROKER_URL,
+    // };
 
-    ESP_LOGI(TAG, "Init MQTT client with URL: %s", mqtt_url);
+    // ESP_LOGI(TAG, "Init MQTT client with URL: %s", mqtt_url);
 
-    mqtt_client = esp_mqtt_client_init(&mqtt_config);
+    // mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
 
-    if (!mqtt_client)
-    {
-        ESP_LOGE(TAG, "Error when init MQTT client");
-        return;
-    }
+    // if (!mqtt_client)
+    // {
+    //     ESP_LOGE(TAG, "Error when init MQTT client");
+    //     return;
+    // }
 
     // Register MQTT events
     esp_err_t err = esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
@@ -158,12 +144,12 @@ static void mqtt_init(void)
     }
 
     // Init MQTT client
-    err = esp_mqtt_client_start(mqtt_client);
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Error when init MQTT: %s", esp_err_to_name(err));
-        return;
-    }
+    // err = esp_mqtt_client_start(mqtt_client);
+    // if (err != ESP_OK)
+    // {
+    //     ESP_LOGE(TAG, "Error when init MQTT: %s", esp_err_to_name(err));
+    //     return;
+    // }
 
     // Registrar eventos MQTT
     if (err != ESP_OK)
@@ -175,7 +161,7 @@ static void mqtt_init(void)
 
 void app_main(void)
 {
-
+    ESP_LOGI(TAG, "esp32_mqtt");
     // esp_mqtt_client_subscribe_single(mqtt_client, mqtt_subscribeTopic, 0);
 
     // esp_mqtt_client_publish(mqtt_client, mqtt_publishTopic, json_buffer, 0, 0, 0);
