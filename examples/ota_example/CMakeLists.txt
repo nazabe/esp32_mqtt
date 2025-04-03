@@ -5,4 +5,4 @@
 cmake_minimum_required(VERSION 3.5)
 set(EXTRA_COMPONENT_DIRS "../../main")
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(ota_example)
+project(mqtt_ota_example)
