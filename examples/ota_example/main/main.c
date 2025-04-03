@@ -22,8 +22,12 @@
 #include "mqtt_client.h"
 
 #include "esp32_mqtt.h"
+#include "mqtt_credentials.h"
+
+#define TAG "ota_example"
 
 void app_main(void)
 {
+    mqtt_init();
 
 }

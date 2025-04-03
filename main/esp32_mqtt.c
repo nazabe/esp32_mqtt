@@ -139,7 +139,7 @@ static void mqtt_init(void)
     esp_mqtt_client_config_t mqtt_config = {
     };
 
-    ESP_LOGI(TAG, "Iniciando cliente MQTT con URL: %s", mqtt_url);
+    ESP_LOGI(TAG, "Init MQTT client with URL: %s", mqtt_url);
 
     mqtt_client = esp_mqtt_client_init(&mqtt_config);
 
@@ -173,11 +173,11 @@ static void mqtt_init(void)
     }
 }
 
-// void app_main(void)
-// {
+void app_main(void)
+{
 
-//     // esp_mqtt_client_subscribe_single(mqtt_client, mqtt_subscribeTopic, 0);
+    // esp_mqtt_client_subscribe_single(mqtt_client, mqtt_subscribeTopic, 0);
 
-//     // esp_mqtt_client_publish(mqtt_client, mqtt_publishTopic, json_buffer, 0, 0, 0);
+    // esp_mqtt_client_publish(mqtt_client, mqtt_publishTopic, json_buffer, 0, 0, 0);
     
-// }
+}

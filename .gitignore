@@ -1,3 +1,6 @@
 build/
 sdkconfig
 sdkconfig.old
+
+examples/ota_example/build
+examples/ota_example/main/mqtt_credentials.h
